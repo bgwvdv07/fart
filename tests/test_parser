@@ -1,0 +1,22 @@
+import httpx
+from app.rss_parser import parse_feed
+
+async def test_single_feed():
+    url = "https://waylonwalker.com/rss.xml"  # example dev blog feed [web:95]
+    async with httpx.AsyncClient(timeout=10.0) as client:
+        resp = await client.get(url)
+        resp.raise_for_status()
+        raw_xml = resp.content
+
+    items = parse_feed(raw_xml)
+    print(f"Parsed {len(items)} items")
+    for item in items[:5]:
+        print("---")
+        print("entry_key:", item.entry_key)
+        print("title    :", item.title)
+        print("url      :", item.url)
+        print("published:", item.published_at)
+
+if __name__ == "__main__":
+    import asyncio
+    asyncio.run(test_single_feed())
